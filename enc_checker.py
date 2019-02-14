@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from binascii import unhexlify, hexlify
 
 # python 3.5 available encoding lists
 enc_list = ['ascii',
@@ -99,17 +100,30 @@ enc_list = ['ascii',
          'utf_8',
          'utf_8_sig']
 
-from binascii import unhexlify
-s = unhexlify(input('Enter your string: ').strip().replace('\\x',''))
+def fake_hex(s):
+    ret = ''
+    cnt = 0
+    while cnt < len(s):
+        if s[cnt] == '\\':
+            ret += s[cnt:cnt+4]
+            cnt += 4
+        else:
+            ret += '\\x' + str(hexlify(s[cnt].encode()).decode())
+            cnt += 1
+
+    return ret
+
+user_input = input('Enter your string: ').strip()
+s = unhexlify(fake_hex(user_input).replace('\\x', ''))
 
 cnt = 0
-print('+--------------------------------')
+print('--------------------------------')
 for enc in enc_list:
     try:
-        print('|{} ({})'.format(s.decode().encode(enc).decode('utf8'), enc))
+        print('{} ({})'.format(s.decode().encode(enc).decode('utf8'), enc))
         cnt += 1
     except:
         pass
-print('+--------------------------------')
+print('--------------------------------')
 print('Possible encodings: {}'.format(cnt))
 
